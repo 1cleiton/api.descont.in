@@ -39,8 +39,9 @@ class UserManager(BaseUserManager):
         data = self.validate_zipcode(zipcode)
         user = self.create_user(email=email, password=password, **extra_fields)
 
+        # should not use zipcode from data because has hiphen
         address = Address.objects.create(neighborhood=data['bairro'],
-                                         zipcode=data['cep'],
+                                         zipcode=zipcode,
                                          city=data['cidade'],
                                          street=data['logradouro'],
                                          region=data['uf'],
