@@ -128,3 +128,5 @@ AUTH_USER_MODEL = 'core.User'
 AVAILABLE_ZONE = [
     'São Cristóvão'
 ]
+
+INVITE_LIMIT = 10

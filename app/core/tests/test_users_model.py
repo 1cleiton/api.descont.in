@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 
-class ModelTests(TestCase):
+class UserModelTests(TestCase):
     def setUp(self):
         self.password = 'Testpass@123'
 
@@ -46,11 +46,11 @@ class ModelTests(TestCase):
     def test_new_client_valid_zipcode(self):
         """Test creating client with valid zipcode."""
         client = get_user_model().objects.create_client(
-            email=self.valid_email,
+            email=self.client_valid_email,
             password=self.password,
             zipcode=self.valid_zipcode)
 
-        self.assertEqual(client.user.email, self.valid_email)
+        self.assertEqual(client.user.email, self.client_valid_email)
         self.assertNotEqual(client.user.password, self.password)
         self.assertTrue(client.user.check_password(self.password))
 

@@ -9,6 +9,7 @@ yapf = "*"
 [packages]
 djangorestframework = "==3.11"
 Django = "==3.0.7"
+model-mommy = "*"
 
 [requires]
 python_version = "3.6"
