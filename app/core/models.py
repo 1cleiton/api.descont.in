@@ -58,9 +58,9 @@ class UserManager(BaseUserManager):
     def create_invite(self, sender, to):
         if not isinstance(sender, Client):
             raise InvalidSenderError()
-        if sender is None:
+        if not sender:
             raise InvalidSenderError()
-        if to is None:
+        if not to:
             raise InvalidEmailError()
         if not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
                         to):

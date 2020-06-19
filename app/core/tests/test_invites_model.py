@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from model_mommy import mommy
 
-from core.exceptions import InvalidSenderError, InvitationLimitExceeded
+from core.exceptions import (InvalidEmailError, InvalidSenderError,
+                             InvitationLimitExceeded)
 from core.models import Invite
 
 
@@ -33,6 +34,17 @@ class UserModelTests(TestCase):
         with self.assertRaises(InvalidSenderError):
             get_user_model().objects.create_invite(sender=None,
                                                    to='neighbor@descont.in')
+
+    def test_create_invite_with_invalid_to(self):
+        """Test create invite with invalid email in to parameter."""
+        with self.assertRaises(InvalidEmailError):
+            get_user_model().objects.create_invite(sender=self.client,
+                                                   to='invalidemail')
+
+    def test_create_invite_without_to(self):
+        """Test create invite without to parameter."""
+        with self.assertRaises(InvalidEmailError):
+            get_user_model().objects.create_invite(sender=self.client, to=None)
 
     def test_create_invite_limit_exceeded(self):
         """Test create invite without invites."""
