@@ -1,6 +1,42 @@
 version: "3"
 services:
+  db:
+    image: postgres:13-alpine
+    container_name: db
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=supersecretpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - main
+    ports:
+      - "5432:5432"
+    restart: on-failure
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=postgres
+      - PGADMIN_DEFAULT_PASSWORD=supersecretpassword
+    ports:
+      - 8082:80
+    networks: 
+      - main
+    depends_on:
+      - db
+  redis:
+    image: redis:6.0.5-alpine
+    container_name: redis
+    hostname: redis
+    networks:
+      - main
+    ports:
+      - "6379:6379"
+    restart: on-failure
   app:
+    image: descontin-image
     user: $uid:$gid
     build:
       context: .
@@ -8,27 +44,51 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
-    environment: 
+    environment:
       - DB_HOST=db
       - DB_NAME=app
       - DB_USER=postgres
       - DB_PASSWORD=supersecretpassword
+    networks:
+      - main
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
-    depends_on: 
-      - db
-  db:
-    image: postgres:13-alpine
-    environment: 
-      - POSTGRES_DB=app
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=supersecretpassword
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=postgres
-      - PGADMIN_DEFAULT_PASSWORD=supersecretpassword
-    ports:
-      - 8082:80
+      sh -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"
     depends_on:
       - db
+      - redis
+    expose:
+      - "8000"
+    hostname: app
+    restart: on-failure
+  celery_worker:
+    image: descontin-image
+    container_name: celery_worker
+    command: sh -c "celery -A app worker -l info"
+    volumes:
+      - ./app:/app
+    depends_on:
+      - app
+      - db
+      - redis
+    hostname: celery_worker
+    networks:
+      - main
+    restart: on-failure
+  celery_beat:
+    image: descontin-image
+    container_name: celery_beat
+    command: sh -c "celery -A app beat -l info"
+    volumes:
+      - ./app:/app
+    depends_on:
+      - app
+      - db
+      - redis
+    hostname: celery_beat
+    networks:
+      - main
+    restart: on-failure
+networks:
+  main:
+volumes:
+  postgres_data:

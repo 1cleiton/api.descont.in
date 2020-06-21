@@ -10,6 +10,7 @@ from core.models import Invite
 class UserModelTests(TestCase):
     def setUp(self):
         self.client = get_user_model().objects.create_client(
+            name='John Doe',
             email='client@descont.in',
             password='Testpass@123',
             zipcode='20941150')

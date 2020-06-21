@@ -9,7 +9,10 @@ yapf = "*"
 [packages]
 djangorestframework = "==3.11"
 Django = "==3.0.7"
-model-mommy = "*"
+model-mommy = "==2.0.0"
+celery = "==4.4.5"
+redis = "==3.5.3"
+ipdb = "==0.13.2"
 
 [requires]
 python_version = "3.6"
