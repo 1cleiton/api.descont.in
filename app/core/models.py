@@ -73,6 +73,7 @@ class UserManager(BaseUserManager):
 
         invite = Invite.objects.create(sender=sender, to=to)
         send_invite.delay(sender.user.name, to)
+
         return invite
 
 
